@@ -18,8 +18,8 @@ export default function CartDrawer() {
     const config = {
         reference: new Date().getTime().toString(),
         email: "test@artisan.com",
-        amount: total * 100, // Pesewas
-        publicKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || "pk_test_fallback_key",
+        amount: Math.round(total * 100), // Pesewas (strictly whole integer)
+        publicKey: "pk_test_YOUR_ACTUAL_TEST_KEY_HERE", // TEMPORARY: Paste your literal test key here for Vercel testing
         currency: "GHS",
     };
 
@@ -132,10 +132,17 @@ export default function CartDrawer() {
                     </div>
                     <button
                         onClick={() => {
-                            if (!process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY) {
-                                alert("Paystack Public Key is missing in this environment!");
+                            if (total <= 0) {
+                                alert("Cart is empty!");
                                 return;
                             }
+                            console.log("Total Amount (GHS):", total);
+                            console.log("Paystack Key Available:", !!process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY);
+
+                            if (!process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY && config.publicKey === "pk_test_YOUR_ACTUAL_TEST_KEY_HERE") {
+                                console.warn("Using hardcoded placeholder key. Ensure you've replaced it with your actual key.");
+                            }
+
                             initializePayment({ onSuccess, onClose });
                         }}
                         disabled={cart.length === 0}
