@@ -12,7 +12,7 @@ export default function CartDrawer() {
     const removeFromCart = useCartStore((s) => s.removeFromCart);
     const clearCart = useCartStore((s) => s.clearCart);
 
-    const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0) || 0;
 
     // Paystack config
     const config = {
@@ -89,7 +89,7 @@ export default function CartDrawer() {
                             Your cart is empty
                         </p>
                     ) : (
-                        cart.map((item, idx) => (
+                        cart.map((item, index) => (
                             <div
                                 key={`${item.id}-${item.material}`}
                                 className="flex items-start justify-between gap-3 rounded-xl p-3"
@@ -110,7 +110,7 @@ export default function CartDrawer() {
                                     </p>
                                 </div>
                                 <button
-                                    onClick={() => removeFromCart(item.id)}
+                                    onClick={() => removeFromCart(index)}
                                     className="text-[10px] uppercase tracking-wider text-red-400/70 hover:text-red-400 transition-colors mt-0.5 cursor-pointer"
                                 >
                                     Remove
@@ -131,7 +131,13 @@ export default function CartDrawer() {
                         </span>
                     </div>
                     <button
-                        onClick={() => initializePayment({ onSuccess, onClose })}
+                        onClick={() => {
+                            if (!process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY) {
+                                alert("Paystack Public Key is missing in this environment!");
+                                return;
+                            }
+                            initializePayment({ onSuccess, onClose });
+                        }}
                         disabled={cart.length === 0}
                         className="w-full py-3 rounded-xl text-sm font-medium tracking-wide uppercase transition-all duration-300 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
                         style={{
