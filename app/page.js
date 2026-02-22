@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import Header from "@/components/Header";
@@ -34,7 +34,7 @@ const SWATCHES = [
   { name: "Birch", color: "#F5F0E8" },
 ];
 
-export default function Home() {
+function ShowroomContent() {
   const [productColor, setProductColor] = useState("#8B4513");
   const [activeIdx, setActiveIdx] = useState(0);
   const [isCardExpanded, setIsCardExpanded] = useState(false);
@@ -176,5 +176,19 @@ export default function Home() {
 
       </div>{/* end UI overlay */}
     </main>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-zinc-900 flex items-center justify-center text-white">
+          Loading Showroom...
+        </div>
+      }
+    >
+      <ShowroomContent />
+    </Suspense>
   );
 }
