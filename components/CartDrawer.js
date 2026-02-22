@@ -19,7 +19,7 @@ export default function CartDrawer() {
         reference: new Date().getTime().toString(),
         email: "test@artisan.com",
         amount: total * 100, // Pesewas
-        publicKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || "",
+        publicKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || "pk_test_fallback_key",
         currency: "GHS",
     };
 
@@ -56,7 +56,7 @@ export default function CartDrawer() {
             {isCartOpen && (
                 <div
                     className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm transition-opacity"
-                    onClick={toggleCart}
+                    onClick={() => toggleCart()}
                 />
             )}
 
@@ -75,7 +75,7 @@ export default function CartDrawer() {
                         )}
                     </h2>
                     <button
-                        onClick={toggleCart}
+                        onClick={() => toggleCart()}
                         className="text-xs tracking-wider uppercase text-white/50 hover:text-white transition-colors cursor-pointer"
                     >
                         Close ✕
@@ -89,7 +89,7 @@ export default function CartDrawer() {
                             Your cart is empty
                         </p>
                     ) : (
-                        cart.map((item, index) => (
+                        (cart || []).map((item, index) => (
                             <div
                                 key={`${item.id}-${item.material}`}
                                 className="flex items-start justify-between gap-3 rounded-xl p-3"
