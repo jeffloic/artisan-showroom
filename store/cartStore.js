@@ -28,9 +28,9 @@ const useCartStore = create((set) => ({
             return { cart: [...state.cart, { ...item, quantity: 1 }] };
         }),
 
-    removeFromCart: (index) =>
+    removeFromCart: (targetIndex) =>
         set((state) => ({
-            cart: state.cart.filter((_, i) => i !== index),
+            cart: state.cart.filter((_, i) => i !== targetIndex),
         })),
 
     clearCart: () => set({ cart: [] }),

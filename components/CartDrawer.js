@@ -1,7 +1,7 @@
 "use client";
 
 import useCartStore from "../store/cartStore";
-import { usePaystackPayment } from "react-paystack";
+import { PaystackButton } from "react-paystack";
 import { db } from "../lib/firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
@@ -14,16 +14,7 @@ export default function CartDrawer() {
 
     const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0) || 0;
 
-    // Paystack config
-    const config = {
-        reference: new Date().getTime().toString(),
-        email: "test@artisan.com",
-        amount: Math.round(total * 100), // Pesewas (strictly whole integer)
-        publicKey: "pk_test_YOUR_ACTUAL_TEST_KEY_HERE", // TEMPORARY: Paste your literal test key here for Vercel testing
-        currency: "GHS",
-    };
-
-    const initializePayment = usePaystackPayment(config);
+    // Paystack handlers for component
 
     const onSuccess = async () => {
         try {
@@ -111,7 +102,7 @@ export default function CartDrawer() {
                                 </div>
                                 <button
                                     onClick={() => removeFromCart(index)}
-                                    className="text-[10px] uppercase tracking-wider text-red-400/70 hover:text-red-400 transition-colors mt-0.5 cursor-pointer"
+                                    className="text-[10px] uppercase tracking-wider text-red-400/70 hover:text-red-400 transition-colors mt-0.5 cursor-pointer relative z-[60] pointer-events-auto"
                                 >
                                     Remove
                                 </button>
@@ -130,40 +121,25 @@ export default function CartDrawer() {
                             GHS {total.toLocaleString()}
                         </span>
                     </div>
-                    <button
-                        onClick={() => {
-                            if (total <= 0) {
-                                alert("Cart is empty!");
-                                return;
-                            }
-                            console.log("Total Amount (GHS):", total);
-                            console.log("Paystack Key Available:", !!process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY);
-
-                            if (!process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY && config.publicKey === "pk_test_YOUR_ACTUAL_TEST_KEY_HERE") {
-                                console.warn("Using hardcoded placeholder key. Ensure you've replaced it with your actual key.");
-                            }
-
-                            initializePayment({ onSuccess, onClose });
-                        }}
-                        disabled={cart.length === 0}
-                        className="w-full py-3 rounded-xl text-sm font-medium tracking-wide uppercase transition-all duration-300 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
-                        style={{
-                            background: "linear-gradient(135deg, #c9a84c 0%, #a07828 100%)",
-                            color: "#000",
-                            boxShadow: "0 4px 14px rgba(201,168,76,.35)",
-                        }}
-                        onMouseEnter={(e) => {
-                            if (cart.length === 0) return;
-                            e.currentTarget.style.transform = "translateY(-1px)";
-                            e.currentTarget.style.boxShadow = "0 6px 20px rgba(201,168,76,.5)";
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.transform = "translateY(0)";
-                            e.currentTarget.style.boxShadow = "0 4px 14px rgba(201,168,76,.35)";
-                        }}
-                    >
-                        Pay with Paystack
-                    </button>
+                    {total > 0 ? (
+                        <PaystackButton
+                            email="test@artisan.com"
+                            amount={Math.round(total * 100)}
+                            publicKey={process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || "pk_test_fallback"}
+                            text="PAY WITH PAYSTACK"
+                            onSuccess={onSuccess}
+                            onClose={onClose}
+                            currency="GHS"
+                            className="w-full bg-yellow-600 text-zinc-900 py-3 rounded-lg font-bold mt-4 hover:bg-yellow-500 transition-colors relative z-[60] cursor-pointer pointer-events-auto shadow-lg"
+                        />
+                    ) : (
+                        <button
+                            disabled
+                            className="w-full bg-zinc-700 text-zinc-500 py-3 rounded-lg font-bold mt-4 cursor-not-allowed"
+                        >
+                            CART IS EMPTY
+                        </button>
+                    )}
                 </div>
             </div>
         </>
