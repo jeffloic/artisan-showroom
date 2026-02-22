@@ -125,7 +125,7 @@ export default function CartDrawer() {
                         <PaystackButton
                             email="test@artisan.com"
                             amount={Math.round(total * 100)}
-                            publicKey={process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || "pk_test_131e25eb544841184190a9b769f62913c48d9ad8"}
+                            publicKey={process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY}
                             text="PAY WITH PAYSTACK"
                             onSuccess={onSuccess}
                             onClose={onClose}
