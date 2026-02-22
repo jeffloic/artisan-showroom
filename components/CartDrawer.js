@@ -16,24 +16,28 @@ export default function CartDrawer() {
 
     // Paystack handlers for component
 
-    const onSuccess = async () => {
+    const onSuccess = async (reference) => {
+        // 1. Immediately clear the UI state so the user sees it empty
+        const orderItems = [...cart];
+        const orderTotal = total;
+        clearCart();
+        toggleCart(); // Close drawer to show success state clearly
+
+        // 2. Alert the user
+        alert(`Payment Successful! Reference: ${reference.reference}`);
+
+        // 3. Try to save to Firebase (wrapped in a try/catch so it doesn't break the UI if it fails)
         try {
             await addDoc(collection(db, "orders"), {
-                items: cart,
-                totalPaid: total,
+                items: orderItems,
+                totalPaid: orderTotal,
+                reference: reference.reference,
                 currency: "GHS",
                 status: "PAID",
                 createdAt: serverTimestamp(),
             });
-            clearCart();
-            toggleCart();
-            alert("Payment Successful! Thank you for your order.");
-        } catch (err) {
-            console.error("Failed to save order:", err);
-            // Still clear cart so user isn't stuck
-            clearCart();
-            toggleCart();
-            alert("Payment received, but order logging failed. Contact support.");
+        } catch (error) {
+            console.error("Failed to save order to database:", error);
         }
     };
 
